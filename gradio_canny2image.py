@@ -50,6 +50,8 @@ def process(input_image, prompt, a_prompt, n_prompt, num_samples, image_resoluti
             model.low_vram_shift(is_diffusing=True)
 
         model.control_scales = [strength * (0.825 ** float(12 - i)) for i in range(13)] if guess_mode else ([strength] * 13)  # Magic number. IDK why. Perhaps because 0.825**12<0.01 but 0.826**12>0.01
+        import pdb
+        pdb.set_trace()
         samples, intermediates = ddim_sampler.sample(ddim_steps, num_samples,
                                                      shape, cond, verbose=False, eta=eta,
                                                      unconditional_guidance_scale=scale,
@@ -65,12 +67,14 @@ def process(input_image, prompt, a_prompt, n_prompt, num_samples, image_resoluti
     return [255 - detected_map] + results
 
 from PIL import Image
+import os
 
-img = process(np.uint8(Image.open('/home/yd428/ControlNet/test_imgs/IMG_0943_frame_00020.jpeg')), 'street in snow', '', '', 5, 512, 50, True, 1, 7, 971431670, 0.0, 100, 200)
+img = process(np.uint8(Image.open('./test_imgs/dog.png')), 'fluffy dog', '', '', 5, 512, 50, True, 1, 7, 971431670, 0.0, 100, 200)
+os.makedirs('./test', exist_ok=True)
 for i in range(len(img)):
-    Image.fromarray(img[i]).save('./test/test_street{}.png'.format(i))
+    Image.fromarray(img[i]).save('./test/fluffy_dog{}.png'.format(i))
 
-Image.open('/home/yd428/ControlNet/test_imgs/IMG_0943_frame_00020.jpeg').save('./test/test_street_gt.png')
+Image.open('./test_imgs/dog.png').save('./test/dog_gt.png')
 
 #block = gr.Blocks().queue()
 #with block:
