@@ -50,6 +50,8 @@ def process(input_image, prompt, a_prompt, n_prompt, num_samples, image_resoluti
             model.low_vram_shift(is_diffusing=True)
 
         model.control_scales = [strength * (0.825 ** float(12 - i)) for i in range(13)] if guess_mode else ([strength] * 13)  # Magic number. IDK why. Perhaps because 0.825**12<0.01 but 0.826**12>0.01
+
+        cond['c_crossattn'][0] = cond['c_crossattn'][0][:, 1:, :]
         import pdb
         pdb.set_trace()
         samples, intermediates = ddim_sampler.sample(ddim_steps, num_samples,
@@ -72,7 +74,7 @@ import os
 img = process(np.uint8(Image.open('./test_imgs/dog.png')), 'fluffy dog', '', '', 5, 512, 50, True, 1, 7, 971431670, 0.0, 100, 200)
 os.makedirs('./test', exist_ok=True)
 for i in range(len(img)):
-    Image.fromarray(img[i]).save('./test/fluffy_dog{}.png'.format(i))
+    Image.fromarray(img[i]).save('./test/fluffy_dog_last76_{}.png'.format(i))
 
 Image.open('./test_imgs/dog.png').save('./test/dog_gt.png')
 

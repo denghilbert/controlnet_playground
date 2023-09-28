@@ -121,6 +121,7 @@ class FrozenCLIPEmbedder(AbstractEncoder):
         import pdb
         pdb.set_trace()
         outputs = self.transformer(input_ids=tokens, output_hidden_states=self.layer=="hidden")
+        # c_crossattnself.layer = "pooled"
         if self.layer == "last":
             z = outputs.last_hidden_state
         elif self.layer == "pooled":
