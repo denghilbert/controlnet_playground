@@ -51,18 +51,12 @@ def process(input_image, prompt, a_prompt, n_prompt, num_samples, image_resoluti
 
         model.control_scales = [strength * (0.825 ** float(12 - i)) for i in range(13)] if guess_mode else ([strength] * 13)  # Magic number. IDK why. Perhaps because 0.825**12<0.01 but 0.826**12>0.01
 
-        cond['c_crossattn'][0] = cond['c_crossattn'][0][:, :5, :]
-        import clip
-        from PIL import Image
-        device = "cuda" if torch.cuda.is_available() else "cpu"
-        model_clip, preprocess = clip.load("ViT-L/14", device=device)
-        image = preprocess(Image.open("/home/youming/Desktop/controlnet_playground/test_i2i/white_dog2.png")).unsqueeze(0).to(device)
-        image_features = model_clip.encode_image(image)
-        image_features = image_features.unsqueeze(0).repeat(5, 1, 1)
-        # cond['c_crossattn'][0] = torch.cat((cond['c_crossattn'][0], image_features.float()), 1)
-        cond['c_crossattn'][0][:, 2:3, :] = image_features.float()
-        cond['c_crossattn'][0][:, 3:4, :] = image_features.float()
-        cond['c_crossattn'][0][:, 4:5, :] = image_features.float()
+        # Full length features
+        cond['c_crossattn'][0] = cond['c_crossattn'][0][:, :77, :]
+        # Dump last 30
+        cond['c_crossattn'][0] = cond['c_crossattn'][0][:, :47, :]
+        # Dump last 70
+        cond['c_crossattn'][0] = cond['c_crossattn'][0][:, :7, :]
         import pdb
         pdb.set_trace()
         samples, intermediates = ddim_sampler.sample(ddim_steps, num_samples,
@@ -82,9 +76,13 @@ def process(input_image, prompt, a_prompt, n_prompt, num_samples, image_resoluti
 from PIL import Image
 import os
 
-img = process(np.uint8(Image.open('./test_imgs/dog.png')), 'red dog', '', '', 5, 512, 50, True, 1, 7, 971431670, 0.0, 100, 200)
-os.makedirs('./test_i2i', exist_ok=True)
-for i in range(len(img)):
-    Image.fromarray(img[i]).save('./test_i2i/combine_feature_of_white_prompt_red_{}.png'.format(i))
+test_dir = ''
+test_prompt = ''
 
-Image.open('./test_imgs/dog.png').save('./test_i2i/dog_gt.png')
+img = process(np.uint8(Image.open('./test_imgs/dog.png')), test_prompt, '', '', 5, 512, 50, True, 1, 7, 971431670, 0.0, 100, 200)
+os.makedirs(test_dir, exist_ok=True)
+
+for i in range(len(img)):
+    Image.fromarray(img[i]).save('./' + test_dir + '/{}.png'.format(i))
+
+Image.open('./test_imgs/dog.png').save('./' + test_dir + '/dog_gt.png')
