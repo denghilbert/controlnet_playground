@@ -63,6 +63,18 @@ def process(input_image, prompt, a_prompt, n_prompt, num_samples, image_resoluti
         # Dump last 76
         #cond['c_crossattn'][0] = cond['c_crossattn'][0][:, :1, :]
 
+
+        #import clip
+        #from PIL import Image
+        #device = "cuda" if torch.cuda.is_available() else "cpu"
+        #model_clip, preprocess = clip.load("ViT-L/14", device=device)
+        #image = preprocess(Image.open("/home/youming/Desktop/controlnet_playground/test_i2i/white_dog2.png")).unsqueeze(0).to(device)
+        #image_features = model_clip.encode_image(image)
+        #image_features = image_features.unsqueeze(0).repeat(5, 1, 1)
+        ## cond['c_crossattn'][0] = torch.cat((cond['c_crossattn'][0], image_features.float()), 1)
+        #cond['c_crossattn'][0][:, 2:3, :] = image_features.float()
+        #cond['c_crossattn'][0][:, 3:4, :] = image_features.float()
+        #cond['c_crossattn'][0][:, 4:5, :] = image_features.float()
         import pdb
         pdb.set_trace()
         samples, intermediates = ddim_sampler.sample(ddim_steps, num_samples,

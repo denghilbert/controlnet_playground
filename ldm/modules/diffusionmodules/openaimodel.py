@@ -77,6 +77,8 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
     """
 
     def forward(self, x, emb, context=None):
+        import pdb
+        pdb.set_trace()
         for layer in self:
             if isinstance(layer, TimestepBlock):
                 x = layer(x, emb)
