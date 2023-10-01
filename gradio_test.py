@@ -75,8 +75,8 @@ def process(input_image, prompt, a_prompt, n_prompt, num_samples, image_resoluti
         #cond['c_crossattn'][0][:, 2:3, :] = image_features.float()
         #cond['c_crossattn'][0][:, 3:4, :] = image_features.float()
         #cond['c_crossattn'][0][:, 4:5, :] = image_features.float()
-        import pdb
-        pdb.set_trace()
+
+        print(cond['c_crossattn'][0].shape)
         samples, intermediates = ddim_sampler.sample(ddim_steps, num_samples,
                                                      shape, cond, verbose=False, eta=eta,
                                                      unconditional_guidance_scale=scale,

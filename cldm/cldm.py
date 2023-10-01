@@ -285,6 +285,8 @@ class ControlNet(nn.Module):
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
         emb = self.time_embed(t_emb)
 
+        import pdb
+        pdb.set_trace()
         guided_hint = self.input_hint_block(hint, emb, context)
 
         outs = []
@@ -292,8 +294,6 @@ class ControlNet(nn.Module):
         h = x.type(self.dtype)
         for module, zero_conv in zip(self.input_blocks, self.zero_convs):
             if guided_hint is not None:
-                import pdb
-                pdb.set_trace()
                 h = module(h, emb, context)
                 h += guided_hint
                 guided_hint = None

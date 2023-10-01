@@ -177,9 +177,9 @@ class CrossAttention(nn.Module):
                 sim = einsum('b i d, b j d -> b i j', q, k) * self.scale
         else:
             sim = einsum('b i d, b j d -> b i j', q, k) * self.scale
-        
+
         del q, k
-    
+
         if exists(mask):
             mask = rearrange(mask, 'b ... -> b (...)')
             max_neg_value = -torch.finfo(sim.dtype).max
@@ -322,6 +322,8 @@ class SpatialTransformer(nn.Module):
         # note: if no context is given, cross-attention defaults to self-attention
         if not isinstance(context, list):
             context = [context]
+        import pdb
+        pdb.set_trace()
         b, c, h, w = x.shape
         x_in = x
         x = self.norm(x)
