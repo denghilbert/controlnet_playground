@@ -59,9 +59,25 @@ def process(input_image, prompt, a_prompt, n_prompt, num_samples, image_resoluti
         #cond['c_crossattn'][0] = cond['c_crossattn'][0][:, :7, :]
         # Dump last 74
         # This is the threshold for dog case
-        cond['c_crossattn'][0] = cond['c_crossattn'][0][:, :3, :]
+        #cond['c_crossattn'][0] = cond['c_crossattn'][0][:, :3, :]
         # Dump last 76
         #cond['c_crossattn'][0] = cond['c_crossattn'][0][:, :1, :]
+        # Dump top1 and generate with last 76
+        #cond['c_crossattn'][0] = cond['c_crossattn'][0][:, 1:, :]
+
+
+        # Random noise
+        #cond['c_crossattn'][0] = torch.normal(0, 1, cond['c_crossattn'][0].shape).cuda()
+        # Duplicate top1 for 77 times
+        # This is identical to only w/ top1, because we will do cross attention (5, 77, 768)^T * (5, 77, 768) == (5, 1, 768)^T * (5, 1, 768)
+        #cond['c_crossattn'][0] = cond['c_crossattn'][0][:, :1 :].repeat(1, 77, 1)
+
+        # zero out last 30
+        #cond['c_crossattn'][0][:, 47:77, :] = 0
+        # zero out last 70
+        #cond['c_crossattn'][0][:, 7:77, :] = 0
+        # zero out last 74
+        #cond['c_crossattn'][0][:, 3:77, :] = 0
 
 
         #import clip
@@ -71,6 +87,10 @@ def process(input_image, prompt, a_prompt, n_prompt, num_samples, image_resoluti
         #image = preprocess(Image.open("/home/youming/Desktop/controlnet_playground/test_i2i/white_dog2.png")).unsqueeze(0).to(device)
         #image_features = model_clip.encode_image(image)
         #image_features = image_features.unsqueeze(0).repeat(5, 1, 1)
+
+        #import pdb
+        #pdb.set_trace()
+
         ## cond['c_crossattn'][0] = torch.cat((cond['c_crossattn'][0], image_features.float()), 1)
         #cond['c_crossattn'][0][:, 2:3, :] = image_features.float()
         #cond['c_crossattn'][0][:, 3:4, :] = image_features.float()
@@ -94,7 +114,7 @@ def process(input_image, prompt, a_prompt, n_prompt, num_samples, image_resoluti
 from PIL import Image
 import os
 
-test_dir = 'test/2feature_white'
+test_dir = 'test/zero_last74_feature_white'
 test_prompt = 'fluffy white dog'
 
 img = process(np.uint8(Image.open('./test_imgs/dog.png')), test_prompt, '', '', 5, 512, 50, True, 1, 7, 971431670, 0.0, 100, 200)
