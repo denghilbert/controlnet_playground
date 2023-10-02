@@ -81,8 +81,8 @@ class TimestepEmbedSequential(nn.Sequential, TimestepBlock):
             if isinstance(layer, TimestepBlock):
                 x = layer(x, emb)
             elif isinstance(layer, SpatialTransformer):
-                import pdb
-                pdb.set_trace()
+                #import pdb
+                #pdb.set_trace()
                 x = layer(x, context)
             else:
                 x = layer(x)

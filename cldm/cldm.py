@@ -285,8 +285,8 @@ class ControlNet(nn.Module):
         t_emb = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
         emb = self.time_embed(t_emb)
 
-        import pdb
-        pdb.set_trace()
+        #import pdb
+        #pdb.set_trace()
         guided_hint = self.input_hint_block(hint, emb, context)
 
         outs = []
@@ -336,8 +336,8 @@ class ControlLDM(LatentDiffusion):
         if cond['c_concat'] is None:
             eps = diffusion_model(x=x_noisy, timesteps=t, context=cond_txt, control=None, only_mid_control=self.only_mid_control)
         else:
-            import pdb
-            pdb.set_trace()
+            #import pdb
+            #pdb.set_trace()
             control = self.control_model(x=x_noisy, hint=torch.cat(cond['c_concat'], 1), timesteps=t, context=cond_txt)
             control = [c * scale for c, scale in zip(control, self.control_scales)]
             eps = diffusion_model(x=x_noisy, timesteps=t, context=cond_txt, control=control, only_mid_control=self.only_mid_control)

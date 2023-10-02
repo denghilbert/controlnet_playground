@@ -167,6 +167,8 @@ class CrossAttention(nn.Module):
         context = default(context, x)
         k = self.to_k(context)
         v = self.to_v(context)
+        #import pdb
+        #pdb.set_trace()
 
         q, k, v = map(lambda t: rearrange(t, 'b n (h d) -> (b h) n d', h=h), (q, k, v))
 
@@ -266,10 +268,14 @@ class BasicTransformerBlock(nn.Module):
         self.checkpoint = checkpoint
 
     def forward(self, x, context=None):
+        #import pdb
+        #pdb.set_trace()
         return checkpoint(self._forward, (x, context), self.parameters(), self.checkpoint)
 
     def _forward(self, x, context=None):
         x = self.attn1(self.norm1(x), context=context if self.disable_self_attn else None) + x
+        #import pdb
+        #pdb.set_trace()
         x = self.attn2(self.norm2(x), context=context) + x
         x = self.ff(self.norm3(x)) + x
         return x
@@ -322,8 +328,6 @@ class SpatialTransformer(nn.Module):
         # note: if no context is given, cross-attention defaults to self-attention
         if not isinstance(context, list):
             context = [context]
-        import pdb
-        pdb.set_trace()
         b, c, h, w = x.shape
         x_in = x
         x = self.norm(x)
@@ -333,6 +337,8 @@ class SpatialTransformer(nn.Module):
         if self.use_linear:
             x = self.proj_in(x)
         for i, block in enumerate(self.transformer_blocks):
+            #import pdb
+            #pdb.set_trace()
             x = block(x, context=context[i])
         if self.use_linear:
             x = self.proj_out(x)
