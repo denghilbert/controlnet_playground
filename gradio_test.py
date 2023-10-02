@@ -52,7 +52,7 @@ def process(input_image, prompt, a_prompt, n_prompt, num_samples, image_resoluti
         model.control_scales = [strength * (0.825 ** float(12 - i)) for i in range(13)] if guess_mode else ([strength] * 13)  # Magic number. IDK why. Perhaps because 0.825**12<0.01 but 0.826**12>0.01
 
         # Full length features
-        #cond['c_crossattn'][0] = cond['c_crossattn'][0][:, :77, :]
+        cond['c_crossattn'][0] = cond['c_crossattn'][0][:, :77, :]
         # Dump last 30
         #cond['c_crossattn'][0] = cond['c_crossattn'][0][:, :47, :]
         # Dump last 70
@@ -114,7 +114,7 @@ def process(input_image, prompt, a_prompt, n_prompt, num_samples, image_resoluti
 from PIL import Image
 import os
 
-test_dir = 'test/zero_last74_feature_white'
+test_dir = 'test/77feature_white'
 test_prompt = 'fluffy white dog'
 
 img = process(np.uint8(Image.open('./test_imgs/dog.png')), test_prompt, '', '', 5, 512, 50, True, 1, 7, 971431670, 0.0, 100, 200)
