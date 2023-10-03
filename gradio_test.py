@@ -14,6 +14,8 @@ from annotator.canny import CannyDetector
 from cldm.model import create_model, load_state_dict
 from cldm.ddim_hacked import DDIMSampler
 
+import clip
+from PIL import Image
 
 apply_canny = CannyDetector()
 
@@ -52,7 +54,7 @@ def process(input_image, prompt, a_prompt, n_prompt, num_samples, image_resoluti
         model.control_scales = [strength * (0.825 ** float(12 - i)) for i in range(13)] if guess_mode else ([strength] * 13)  # Magic number. IDK why. Perhaps because 0.825**12<0.01 but 0.826**12>0.01
 
         # Full length features
-        cond['c_crossattn'][0] = cond['c_crossattn'][0][:, :77, :]
+        #cond['c_crossattn'][0] = cond['c_crossattn'][0][:, :77, :]
         # Dump last 30
         #cond['c_crossattn'][0] = cond['c_crossattn'][0][:, :47, :]
         # Dump last 70
@@ -80,16 +82,23 @@ def process(input_image, prompt, a_prompt, n_prompt, num_samples, image_resoluti
         #cond['c_crossattn'][0][:, 3:77, :] = 0
 
 
-        #import clip
-        #from PIL import Image
-        #device = "cuda" if torch.cuda.is_available() else "cpu"
-        #model_clip, preprocess = clip.load("ViT-L/14", device=device)
-        #image = preprocess(Image.open("/home/youming/Desktop/controlnet_playground/test_i2i/white_dog2.png")).unsqueeze(0).to(device)
-        #image_features = model_clip.encode_image(image)
-        #image_features = image_features.unsqueeze(0).repeat(5, 1, 1)
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        model_clip, preprocess = clip.load("ViT-L/14", device=device)
 
-        #import pdb
-        #pdb.set_trace()
+        # I modify the return value of clip.encode_text, return n*77*768 features
+        # use this features to generate images
+        tokens = clip.tokenize(['fluffy white dog'], context_length=77).cuda()
+        text_features, full_length_features = model_clip.encode_text(tokens)
+        #cond['c_crossattn'][0] = full_length_features.repeat(5, 1, 1).float()
+
+        # interpolation of red and white from text
+        cond['c_crossattn'][0] = (1 * full_length_features.repeat(5, 1, 1).float() + 5 * cond['c_crossattn'][0]) / 6
+
+
+        image = preprocess(Image.open("/home/youming/Desktop/controlnet_playground/test_i2i/white_dog2.png")).unsqueeze(0).to(device)
+        image_features = model_clip.encode_image(image)
+        image_features = image_features.unsqueeze(0).repeat(5, 1, 1)
+
 
         ## cond['c_crossattn'][0] = torch.cat((cond['c_crossattn'][0], image_features.float()), 1)
         #cond['c_crossattn'][0][:, 2:3, :] = image_features.float()
@@ -114,8 +123,8 @@ def process(input_image, prompt, a_prompt, n_prompt, num_samples, image_resoluti
 from PIL import Image
 import os
 
-test_dir = 'test/77feature_white'
-test_prompt = 'fluffy white dog'
+test_dir = 'test/interpolation_red_white_1white5red'
+test_prompt = 'fluffy red dog'
 
 img = process(np.uint8(Image.open('./test_imgs/dog.png')), test_prompt, '', '', 5, 512, 50, True, 1, 7, 971431670, 0.0, 100, 200)
 os.makedirs(test_dir, exist_ok=True)
