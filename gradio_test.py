@@ -92,7 +92,22 @@ def process(input_image, prompt, a_prompt, n_prompt, num_samples, image_resoluti
         #cond['c_crossattn'][0] = full_length_features.repeat(5, 1, 1).float()
 
         # interpolation of red and white from text
-        cond['c_crossattn'][0] = (1 * full_length_features.repeat(5, 1, 1).float() + 5 * cond['c_crossattn'][0]) / 6
+        #cond['c_crossattn'][0] = (1 * full_length_features.repeat(5, 1, 1).float() + 1 * cond['c_crossattn'][0]) / 2
+        #cond['c_crossattn'][0] = (1 * full_length_features.repeat(5, 1, 1).float() + 2 * cond['c_crossattn'][0]) / 3
+        #cond['c_crossattn'][0] = (1 * full_length_features.repeat(5, 1, 1).float() + 3 * cond['c_crossattn'][0]) / 4
+        #cond['c_crossattn'][0] = (1 * full_length_features.repeat(5, 1, 1).float() + 5 * cond['c_crossattn'][0]) / 6
+
+        # only interpolate at several channels
+        # interpolate on feature0
+        #cond['c_crossattn'][0][:, :1,:] = (1 * full_length_features.repeat(5, 1, 1).float()[:, :1,:] + 1 * cond['c_crossattn'][0][:, :1,:]) / 2
+        # interpolate on feature1
+        #cond['c_crossattn'][0][:, 1:2,:] = (1 * full_length_features.repeat(5, 1, 1).float()[:, 1:2,:] + 1 * cond['c_crossattn'][0][:, 1:2,:]) / 2
+        # interpolate on feature3-77
+        #cond['c_crossattn'][0][:, 3:77,:] = (1 * full_length_features.repeat(5, 1, 1).float()[:, 3:77,:] + 1 * cond['c_crossattn'][0][:, 3:77,:]) / 2
+        # interpolate on feature3
+        #cond['c_crossattn'][0][:, 3:4,:] = (1 * full_length_features.repeat(5, 1, 1).float()[:, 3:4,:] + 1 * cond['c_crossattn'][0][:, 3:4,:]) / 2
+        # interpolate on feature3-4
+        cond['c_crossattn'][0][:, 3:5,:] = (1 * full_length_features.repeat(5, 1, 1).float()[:, 3:5,:] + 1 * cond['c_crossattn'][0][:, 3:5,:]) / 2
 
 
         image = preprocess(Image.open("/home/youming/Desktop/controlnet_playground/test_i2i/white_dog2.png")).unsqueeze(0).to(device)
@@ -123,7 +138,7 @@ def process(input_image, prompt, a_prompt, n_prompt, num_samples, image_resoluti
 from PIL import Image
 import os
 
-test_dir = 'test/interpolation_red_white_1white5red'
+test_dir = 'test/interpolation_3-4feature_1white1red'
 test_prompt = 'fluffy red dog'
 
 img = process(np.uint8(Image.open('./test_imgs/dog.png')), test_prompt, '', '', 5, 512, 50, True, 1, 7, 971431670, 0.0, 100, 200)
